@@ -3,7 +3,6 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
-*.env
 *.venv
 env/
 venv/
@@ -28,9 +27,6 @@ desktop.ini
 # Logs
 *.log
 
-# Environment variables
-.env
-.env.*
 
 # PyInstaller
 *.spec
