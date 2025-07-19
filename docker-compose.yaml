@@ -1,0 +1,109 @@
+version: '3.8'
+
+services:
+  mariadb:
+    image: mariadb:11
+    container_name: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: mydb
+      MYSQL_USER: myuser
+      MYSQL_PASSWORD: mypass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb-ui
+    restart: always
+    ports:
+      - "8086:8086"
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=adminpass
+      - DOCKER_INFLUXDB_INIT_ORG=myorg
+      - DOCKER_INFLUXDB_INIT_BUCKET=mybucket
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=admintoken
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+
+  grafana:
+    image: grafana/grafana:10.2.3
+    container_name: grafana-ui
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=pass
+
+  producer:
+    build: ./producer
+    container_name: data_producer
+    restart: always
+    env_file:
+      - ./producer/.env
+    depends_on:
+      - rabbitmq
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  consumer:
+    build: ./consumer
+    container_name: data_consumer
+    restart: always
+    env_file:
+      - ./consumer/.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - rabbitmq
+      - influxdb
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  backend:
+    build: ./backend
+    container_name: django_backend
+    restart: always
+    volumes:
+      - ./backend:/app/backend
+    ports:
+      - "8888:8888"
+    env_file:
+      - ./backend/.env
+    environment:
+      - PYTHONPATH=/app/backend
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - mariadb
+      - influxdb
+
+volumes:
+  mariadb_data:
+  influxdb_data:
+  grafana_data:

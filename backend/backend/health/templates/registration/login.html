@@ -1,0 +1,36 @@
+
+
+{% extends 'base.html' %}
+{% load form_filters %}
+{% block title %}Giriş Yap{% endblock %}
+{% block content %}
+<div class="card">
+    <h1 class="title is-4">Giriş Yap</h1>
+    <form method="post">
+        {% csrf_token %}
+        <div class="field">
+            <label class="label">Kullanıcı Adı</label>
+            <div class="control">
+                {{ form.username|add_class:"input" }}
+            </div>
+        </div>
+
+        <div class="field">
+            <label class="label">Şifre</label>
+            <div class="control">
+                {{ form.password|add_class:"input" }}
+            </div>
+        </div>
+
+        <div class="field is-grouped is-grouped-centered">
+            <div class="control">
+                <button class="button is-link is-fullwidth">Giriş</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="form-footer">
+        <p>Hesabınız yok mu? <a href="{% url 'register' %}">Kayıt olun</a></p>
+    </div>
+</div>
+{% endblock %}

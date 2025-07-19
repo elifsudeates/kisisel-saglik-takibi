@@ -1,0 +1,23 @@
+
+
+{% extends 'base.html' %}
+{% load form_filters %}
+{% block title %}Kayıt Ol{% endblock %}
+{% block content %}
+<div class="card">
+    <h1 class="title is-4">Kayıt Ol</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="field is-grouped is-grouped-centered">
+            <div class="control">
+                <button class="button is-primary is-fullwidth">Kayıt Ol</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="form-footer">
+        <p>Zaten hesabınız var mı? <a href="{% url 'login' %}">Giriş yapın</a></p>
+    </div>
+</div>
+{% endblock %}
